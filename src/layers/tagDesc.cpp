@@ -4,37 +4,50 @@ bool TagDesc::setup(std::string tag) {
     matjson::Value tagObject = TagsManager::sharedState()->getTagObject(tag)[tag];
     ccColor3B color = tagObject[1].as<ccColor3B>().unwrapOr(ccColor3B{ 0, 0, 0 });
     std::string description = tagObject[2].as<std::string>().unwrapOr("no description provided");
-    auto iconBg = CCScale9Sprite::create("square02b_001.png");
-    iconBg->setContentSize({70, 70});
-    iconBg->setPosition({50, m_mainLayer->getContentHeight() / 2});
-    iconBg->setColor({0, 0, 0});
-    iconBg->setOpacity(60);
+
+    auto closeSpr = CCSprite::create();
+    closeSpr->setContentSize({60, 20});
+
+    auto closeBG = UIsquare::create(true, {60, 20});
+    closeBG->setPosition({closeSpr->getContentWidth() / 2, closeSpr->getContentHeight() / 2});
+    closeSpr->addChild(closeBG);
+    
+    auto closeLabel = CCLabelBMFont::create("close", "bigFont.fnt");
+    closeLabel->setScale(0.4f);
+    closeLabel->setPosition({closeSpr->getContentWidth() / 2, closeSpr->getContentHeight() / 2 + 1});
+    closeSpr->addChild(closeLabel);
+
+    m_closeBtn->setSprite(closeSpr);
+    m_closeBtn->setPosition({m_mainLayer->getContentWidth() / 2, 20.f});
+
+    m_mainLayer->addChild(TagsManager::addBgAnim(m_size));
+    m_mainLayer->addChild(TagsManager::addCorners(m_size, 0.75f));
+
+    auto iconBg = UIsquare::create(true, {70, 70});
+    iconBg->setPosition({60, 70});
     m_mainLayer->addChild(iconBg);
 
-    auto descMenu = CCScale9Sprite::create("square02b_001.png");
-    descMenu->setContentSize({200, 70});
-    descMenu->setPosition({190, m_mainLayer->getContentHeight() / 2});
-    descMenu->setColor({0, 0, 0});
-    descMenu->setOpacity(60);
+    auto descMenu = UIsquare::create(false, {180, 70});
+    descMenu->setPosition({190, 70});
     m_mainLayer->addChild(descMenu);
 
     auto tagLabel = CCLabelBMFont::create(tag.c_str(), "bigFont.fnt");
     tagLabel->limitLabelWidth(50, 0.5, 0.2);
-    tagLabel->setPosition({50, 35});
+    tagLabel->setPosition({60, 55});
     tagLabel->setColor(color);
     m_mainLayer->addChild(tagLabel);
 
     auto tagIcon = CCSprite::createWithSpriteFrameName(fmt::format("{}"_spr, tag + ".png").c_str());
     if (!tagIcon || tagIcon->getUserObject("geode.texture-loader/fallback")) tagIcon = CCSprite::create("404.png"_spr);
     tagIcon->setColor(color);
-    tagIcon->setPosition({50, 58});
+    tagIcon->setPosition({60, 78});
     if (tagIcon) tagIcon->setScale(0.5);
     m_mainLayer->addChild(tagIcon);
 
-    auto desc = SimpleTextArea::create(description.c_str(), "bigFont.fnt", 0.25, 180);
+    auto desc = SimpleTextArea::create(description.c_str(), "chatFont.fnt", 0.65f, 160);
     desc->setAlignment(CCTextAlignment::kCCTextAlignmentCenter);
-    desc->setPosition({190, m_mainLayer->getContentHeight() / 2});
-    desc->setColor({color.r, color.g, color.b, 255});
+    desc->setPosition({190, 70});
+    desc->setColor({255, 255, 255, 255});
     m_mainLayer->addChild(desc);
 
     return true;
@@ -42,7 +55,7 @@ bool TagDesc::setup(std::string tag) {
 
 TagDesc* TagDesc::create(std::string tag) {
     auto ret = new TagDesc();
-    if (ret->initAnchored(300.f, 100.f, tag, "square.png"_spr)) {
+    if (ret->initAnchored(305.f, 120.f, tag, "square.png"_spr)) {
         ret->autorelease();
         return ret;
     }

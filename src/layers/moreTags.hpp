@@ -4,6 +4,7 @@
 
 #include "../tagsManager.hpp"
 #include "tagDesc.hpp"
+#include "uiSquare.hpp"
 
 using namespace geode::prelude;
 

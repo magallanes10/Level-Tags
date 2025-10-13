@@ -1,24 +1,24 @@
 #include "credits.hpp"
+#include "Geode/binding/CCMenuItemSpriteExtra.hpp"
+#include "Geode/cocos/cocoa/CCObject.h"
 
 bool CreditsPopup::setup(bool a) {
-    auto title = CCSprite::create("credits.png"_spr);
-    title->setPosition({m_mainLayer->getContentWidth() / 2, m_mainLayer->getContentHeight() - 20});
-    title->setScale(0.6);
-    m_mainLayer->addChild(title);
+    setTitle("Staff");
+    m_title->setPositionY(204.f);
 
-    auto descMenu = CCScale9Sprite::create("square02b_001.png");
-    descMenu->setContentSize({305, 160});
+    m_mainLayer->addChild(TagsManager::sharedState()->addBgAnim(m_size));
+    m_mainLayer->addChild(TagsManager::sharedState()->addCorners(m_size, 1.0f));
+
+    auto descMenu = UIsquare::create(true, {305.f, 160.f});
     descMenu->setPosition({m_mainLayer->getContentWidth() / 2, 105});
-    descMenu->setColor({ 0, 0, 0 });
-    descMenu->setOpacity(100);
     m_mainLayer->addChild(descMenu);
 
-    for (int i = 0; i < 4; ++i) {
-        auto corner = CCSprite::createWithSpriteFrameName("dailyLevelCorner_001.png");
-        corner->setRotation(90 * i);
-        corner->setPosition({ (i < 2 ? 24.6f : 315.5f), (i % 3 == 0 ? 24.6f : 195.5f) });
-        m_mainLayer->addChild(corner);
-    }
+    arrowSpr = CCSprite::createWithSpriteFrameName("GJ_arrow_03_001.png");
+    arrowSpr->setFlipX(true);
+
+    auto pageArrow = CCMenuItemSpriteExtra::create(arrowSpr, this, menu_selector(CreditsPopup::switchPage));
+    pageArrow->setPosition(360.f, m_mainLayer->getContentHeight() / 2);
+    m_closeBtn->getParent()->addChild(pageArrow);
 
     auto loading = LoadingSpinner::create(20.f);
     loading->setPosition({m_mainLayer->getContentWidth() / 2, 105});
@@ -31,65 +31,86 @@ bool CreditsPopup::setup(bool a) {
 
             if (loading) m_mainLayer->removeChild(loading);
             
-            auto menu = CCMenu::create();
-            menu->setPosition({m_mainLayer->getContentWidth() / 2, 180});
-            menu->setContentWidth(300);
-            menu->setAnchorPoint({0.5, 1});
-            menu->setLayout(AxisLayout::create()->setGrowCrossAxis(true)->setAutoScale(false)->setGap(5));
-            menu->setID("credits-menu");
-            m_mainLayer->addChild(menu);
+            auto staffMenu = CCMenu::create();
+            staffMenu->setPosition({m_mainLayer->getContentWidth() / 2, 180});
+            staffMenu->setContentWidth(300);
+            staffMenu->setAnchorPoint({0.5, 1});
+            staffMenu->setLayout(AxisLayout::create()->setGrowCrossAxis(true)->setAutoScale(false)->setGap(5));
+            staffMenu->setID("staff-menu");
+            m_mainLayer->addChild(staffMenu);
+
+            auto stMenu = CCMenu::create();
+            stMenu->setPosition({m_mainLayer->getContentWidth() / 2, 180});
+            stMenu->setContentWidth(300);
+            stMenu->setAnchorPoint({0.5, 1});
+            stMenu->setVisible(false);
+            stMenu->setLayout(AxisLayout::create()->setGrowCrossAxis(true)->setAutoScale(false)->setGap(5));
+            stMenu->setID("special-thanks-menu");
+            m_mainLayer->addChild(stMenu);
             
             for (const auto& [key, value] : json) {
-                auto btn = CCMenuItemSpriteExtra::create( tabSprite(key, value[0].asString().unwrapOr("")), this, menu_selector(CreditsPopup::btn));
+                auto role = value[0].asString().unwrapOr("");
+                auto btn = CCMenuItemSpriteExtra::create( tabSprite(key, role), this, menu_selector(CreditsPopup::btn));
                 btn->setID(key);
                 btn->setTag(value[1].asInt().unwrapOr(0));
-                menu->addChild(btn);
+                if (role == "developer" || role == "admin" || role == "moderator" || role == "helper") {
+                    staffMenu->addChild(btn);
+                } else {
+                    stMenu->addChild(btn);
+                }
             }
         
             auto docs = CCMenuItemSpriteExtra::create( tabSprite("GD Styles List", "Mod Inspiration"), this, menu_selector(CreditsPopup::docs));
             docs->setID("Docs");
-            menu->addChild(docs);
+            stMenu->addChild(docs);
         
-            menu->updateLayout();
+            staffMenu->updateLayout();
+            stMenu->updateLayout();
         }
     });
 
     auto req = web::WebRequest();
-    m_listener.setFilter(req.get(fmt::format("https://raw.githubusercontent.com/KampWskiR/test3/main/credits.json")));
+    m_listener.setFilter(req.get(fmt::format("{}/credits", Mod::get()->getSettingValue<std::string>("serverUrl"))));
 
     return true;
 }
 
 CCNode* CreditsPopup::tabSprite(std::string name, std::string role) {
-    auto layer = CCNode::create();
-    layer->setPosition({0,0});
-    layer->setContentSize({70, 25});
-
-    auto bg = CCScale9Sprite::create("square02b_001.png");
-    bg->setContentSize({140, 50});
-    bg->setScale(0.5);
-    bg->setPosition({layer->getContentWidth() / 2, layer->getContentHeight() / 2});
-    bg->setColor({ 90, 50, 40 });
-    layer->addChild(bg);
+    auto bg = UIsquare::create(false, {70.f, 25.f});
+    bg->setPosition({bg->getContentWidth() / 2, bg->getContentHeight() / 2});
 
     auto label = CCLabelBMFont::create(name.c_str(), "goldFont.fnt");
-    label->setPosition({layer->getContentWidth() / 2, 18});
+    label->setPosition({bg->getContentWidth() / 2, 18});
     label->limitLabelWidth(60, 0.6, 0.2);
-    layer->addChild(label);
+    bg->addChild(label);
 
     ccColor3B color = { 255, 255, 255 };
     if (role == "developer") color = { 255, 150, 230 };
     else if (role == "admin") color = { 255, 50, 50 };
     else if (role == "moderator") color = { 200, 100, 0 };
     else if (role == "helper") color = { 0, 200, 255 };
+    else if (role == "supporter") color = { 200, 0, 255 };
 
     auto roleLabel = CCLabelBMFont::create(role.c_str(), "bigFont.fnt");
-    roleLabel->setPosition({layer->getContentWidth() / 2, 8});
+    roleLabel->setPosition({bg->getContentWidth() / 2, 8});
     roleLabel->setColor(color);
     roleLabel->limitLabelWidth(60, 0.25, 0.2);
-    layer->addChild(roleLabel);
+    bg->addChild(roleLabel);
 
-    return layer;
+    return bg;
+}
+
+void CreditsPopup::switchPage(CCObject* sender) {
+    arrowSpr->setFlipX(!arrowSpr->isFlipX());
+    if (auto btn = static_cast<CCMenuItemSpriteExtra*>(sender); btn->getPositionX() == 360.f) {
+        btn->setPositionX(-20.f);
+        setTitle("Special Thanks");
+    } else {
+        btn->setPositionX(360.f);
+        setTitle("Staff");
+    }
+    m_mainLayer->getChildByID("staff-menu")->setVisible(!m_mainLayer->getChildByID("staff-menu")->isVisible());
+    m_mainLayer->getChildByID("special-thanks-menu")->setVisible(!m_mainLayer->getChildByID("special-thanks-menu")->isVisible());
 }
 
 void CreditsPopup::btn(CCObject* sender) {

@@ -21,6 +21,7 @@ class $modify(TagsPauseLayer, PauseLayer) {
 
         if (TagsManager::sharedState()->cachedTags[std::to_string(m_fields->levelId)].size() != 0) {
             m_fields->tags = TagsManager::sortTags(TagsManager::sharedState()->cachedTags[std::to_string(m_fields->levelId)]);
+            if (m_fields->tags.size() == 0) return;
             updateTags();
             return;
         }
@@ -30,14 +31,14 @@ class $modify(TagsPauseLayer, PauseLayer) {
                 auto jsonStr = res->string().unwrapOr("{}");
                 auto json = matjson::parse(jsonStr).unwrapOr("{}");
 
-                m_fields->tags = TagsManager::sortTags(json);
-                TagsManager::sharedState()->cachedTags[std::to_string(m_fields->levelId)] = json;
+                m_fields->tags = TagsManager::sortTags(json[std::to_string(m_fields->levelId)]);
+                TagsManager::sharedState()->cachedTags[std::to_string(m_fields->levelId)] = json[std::to_string(m_fields->levelId)];
                 updateTags();
             }
         });
 
         auto req = web::WebRequest();
-        m_fields->m_listener.setFilter(req.get(fmt::format("https://raw.githubusercontent.com/KampWskiR/test3/main/tags/{}.json", m_fields->levelId)));
+        m_fields->m_listener.setFilter(req.get(fmt::format("{}/get?id={}", Mod::get()->getSettingValue<std::string>("serverUrl"), m_fields->levelId)));
     }
     void updateTags() {
         CCSize winSize = CCDirector::get()->getWinSize();

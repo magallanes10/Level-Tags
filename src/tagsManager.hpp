@@ -13,6 +13,9 @@ public:
     inline static matjson::Value cachedTags;
     inline static matjson::Value cachedDescs;
     inline static matjson::Value tags;
+    inline static matjson::Value searchResult;
+    inline static std::vector<GJGameLevel*> searchLevels;
+    inline static EventListener<web::WebTask> m_listener;
     
     static TagsManager* sharedState();
     static matjson::Value sortTags(matjson::Value tags);
@@ -20,4 +23,7 @@ public:
     static CCSprite* getTagSprite(std::string tag);
     static matjson::Value getTagObject(std::string tag);
     static IconButtonSprite* addTag(matjson::Value tag, float scale);
+    static CCClippingNode* addBgAnim(CCSize size);
+    static CCLayer* addCorners(CCSize size, float scale);
+    static void loadTagsInfo();
 };

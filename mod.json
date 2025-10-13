@@ -1,5 +1,5 @@
 {
-	"geode": "4.4.0",
+	"geode": "4.6.3",
 	"gd": {
 		"win": "2.2074",
 		"mac": "2.2074",
@@ -11,13 +11,16 @@
 	"name": "Level Tags",
 	"developer": "KampWski",
 	"description": "A mod that adds tags to levels.",
-	"dependencies": [
-        {
-            "id": "geode.node-ids",
-            "version": ">=v1.17.0",
-            "importance": "required"
-        }
-	],
+	"dependencies": {
+		"geode.node-ids": {
+			"version": ">=v1.17.0",
+			"importance": "required"
+		},
+		"alphalaneous.happy_textures": {
+			"version": ">=v2.0.6",
+			"importance": "required"
+		}
+	},
 	"tags": [
 		"interface",
 		"utility",
@@ -66,6 +69,37 @@
 			"type": "string",
 			"default": "style, theme, meta, gameplay",
 			"one-of": ["style, theme, meta, gameplay","meta, gameplay, style, theme","gameplay, meta, style, theme"]
+		},
+		"hideStyle": {
+			"name": "Hide Style Tags",
+			"type": "bool",
+			"default": false
+		},
+		"hideTheme": {
+			"name": "Hide Theme Tags",
+			"type": "bool",
+			"default": false
+		},
+		"hideMeta": {
+			"name": "Hide Meta Tags",
+			"type": "bool",
+			"default": false
+		},
+		"hideGameplay": {
+			"name": "Hide Gameplay Tags",
+			"type": "bool",
+			"default": false
+		},
+		"other": {
+            "name": "Other",
+            "type": "title"
+        },
+		"serverUrl": {
+			"name": "Server Url",
+			"type": "string",
+			"default": "https://leveltags.up.railway.app",
+			"filter": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:/.?&=0123456789",
+			"description": "The URL of the server that stores the tags."
 		}
 	}
 }

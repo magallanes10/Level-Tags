@@ -1,20 +1,13 @@
 #include "moreTags.hpp"
 
 bool MoreTags::setup(matjson::Value tags) {
-    auto descMenu = CCScale9Sprite::create("square02b_001.png");
-    descMenu->setContentSize({240, 105});
-    descMenu->setPosition({m_mainLayer->getContentWidth() / 2, 95});
-    descMenu->setAnchorPoint({0.5, 1});
-    descMenu->setColor({117, 65, 39});
-    m_mainLayer->addChild(descMenu);
-
     auto tagMenu = CCMenu::create();
     tagMenu->setContentWidth(235);
     tagMenu->setPosition({m_mainLayer->getContentWidth() / 2, 95});
     tagMenu->setAnchorPoint({0.5, 1});
     tagMenu->setID("level-tags");
     tagMenu->setLayout(RowLayout::create()->setGrowCrossAxis(true)->setAutoScale(false)->setGap(2));
-    m_mainLayer->addChild(tagMenu);
+    m_mainLayer->addChild(tagMenu, 1);
 
     if (!tags.isNull() && tags.isArray()) {
         for (const auto& tag : tags) {
@@ -28,14 +21,37 @@ bool MoreTags::setup(matjson::Value tags) {
         }
         m_mainLayer->setContentHeight(55.f + tagMenu->getContentHeight());
         m_mainLayer->updateLayout();
-        tagMenu->setPositionY(m_mainLayer->getContentHeight() - 15);
-        descMenu->setPositionY(m_mainLayer->getContentHeight() - 10);
-        descMenu->setContentHeight(tagMenu->getContentHeight() + 10);
+        tagMenu->setPositionY(m_mainLayer->getContentHeight() - 15.f);
 
-        auto closeSpr = ButtonSprite::create("Close");
-        closeSpr->setScale(0.75);
+        auto closeSpr = CCSprite::create();
+        closeSpr->setContentSize({80, 25});
+
+        auto closeBG = UIsquare::create(false, {70, 20});
+        closeBG->setPosition({closeSpr->getContentWidth() / 2, closeSpr->getContentHeight() / 2});
+        closeSpr->addChild(closeBG);
+            
+        auto closeLabel = CCLabelBMFont::create("close", "bigFont.fnt");
+        closeLabel->setScale(0.5f);
+        closeLabel->setPosition({closeSpr->getContentWidth() / 2, closeSpr->getContentHeight() / 2 + 2});
+        closeSpr->addChild(closeLabel);
+
         m_closeBtn->setSprite(closeSpr);
         m_closeBtn->setPosition({m_mainLayer->getContentWidth() / 2, 20});
+    }
+
+    auto descMenu = UIsquare::create(true, {240, tagMenu->getContentHeight() + 10.f});
+    descMenu->setPosition({m_mainLayer->getContentWidth() / 2, m_mainLayer->getContentHeight() - 10.f});
+    descMenu->setAnchorPoint({0.5, 1});
+    m_mainLayer->addChild(descMenu, 0);
+
+    m_mainLayer->addChild(TagsManager::sharedState()->addBgAnim(m_size));
+    m_bgSprite->setZOrder(-1);
+
+    for (int i = 0; i < 4; ++i) {
+        auto corner = CCSprite::create("corner.png"_spr);
+        corner->setRotation(90 * i);
+        corner->setPosition({ (i < 2 ? 24.f : 256.f), (i % 3 == 0 ? 23.8f : m_mainLayer->getContentHeight() - 23.7f) });
+        m_mainLayer->addChild(corner);
     }
 
     return true;
@@ -43,7 +59,7 @@ bool MoreTags::setup(matjson::Value tags) {
 
 MoreTags* MoreTags::create(matjson::Value tags) {
     auto ret = new MoreTags();
-    if (ret->initAnchored(260.f, 20.f, tags, "square.png"_spr)) {
+    if (ret->initAnchored(280.f, 20.f, tags, "square.png"_spr)) {
         ret->autorelease();
         return ret;
     }

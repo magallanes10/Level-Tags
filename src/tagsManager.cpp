@@ -9,6 +9,11 @@ matjson::Value TagsManager::sortTags(matjson::Value tags) {
     matjson::Value result = matjson::Value::array();
     std::vector<std::string> order;
 
+    if (Mod::get()->getSettingValue<bool>("hideStyle")) tags["style"] = matjson::Value::array();
+    if (Mod::get()->getSettingValue<bool>("hideTheme")) tags["theme"] = matjson::Value::array();
+    if (Mod::get()->getSettingValue<bool>("hideMeta")) tags["meta"] = matjson::Value::array();
+    if (Mod::get()->getSettingValue<bool>("hideGameplay")) tags["gameplay"] = matjson::Value::array();
+
     auto tagsOrder = Mod::get()->getSettingValue<std::string>("tags-order");
     if (tagsOrder == "style, theme, meta, gameplay") order = {"style", "theme", "meta", "gameplay"};
     else if (tagsOrder == "meta, gameplay, style, theme") order = {"meta", "gameplay", "style", "theme"};
@@ -21,6 +26,7 @@ matjson::Value TagsManager::sortTags(matjson::Value tags) {
             }
         }
     }
+
     return result;
 }
 
@@ -66,13 +72,63 @@ IconButtonSprite* TagsManager::addTag(matjson::Value tag, float scale) {
     tagNode->setOpacity(255);
     tagNode->getIcon()->setScale(0.5);
 
-    // if (tagName == "circles") {
-    //     CCDelayTime* delay = CCDelayTime::create(0.3);
-    //     CCActionInterval* sequence = CCSequence::create(
-    //         CCTintTo::create(0, 255, 50, 50), delay, CCTintTo::create(0, 100, 25, 25), delay,
-    //         CCTintTo::create(0, 255, 125, 50), delay, CCTintTo::create(0, 100, 50, 25), delay, nullptr
-    //     ); tagNode->runAction(CCRepeatForever::create(sequence));
-    // }
-
     return tagNode;
+}
+
+CCClippingNode *TagsManager::addBgAnim(CCSize size) {
+    auto stencil = CCLayerColor::create(ccc4(0, 0, 0, 255), size.width, size.height);
+    stencil->setAnchorPoint({0, 0});
+    stencil->setPosition({0, 0});
+
+    auto clipper = CCClippingNode::create(stencil);
+    clipper->setAnchorPoint({0.5f, 0.5f});
+    clipper->setPosition({0, 0});
+
+    auto texture = CCTextureCache::sharedTextureCache()->addImage("tagsBG.png"_spr, false);
+    ccTexParams texParams = { GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT };
+    texture->setTexParameters(&texParams);
+
+    auto bgTexture = CCSprite::createWithTexture(texture, CCRectMake(0, 0, texture->m_uPixelsWide * 2, texture->m_uPixelsHigh * 2));
+    bgTexture->setAnchorPoint(ccp(0.5f, 0.5f));
+    bgTexture->setPosition({0.f, 0.f});
+    bgTexture->setOpacity(25);
+
+    clipper->addChild(bgTexture);
+
+    auto bgMove = CCMoveBy::create(10.0f, {272.f, -277.f});
+    auto bgReset = CCMoveTo::create(0.0f, {0.f, 0.f});
+    auto bgSeq = CCSequence::create(bgMove, bgReset, nullptr);
+    auto bgRepeat = CCRepeatForever::create(bgSeq);
+    bgTexture->runAction(bgRepeat);
+
+    return clipper;
+}
+
+CCLayer* TagsManager::addCorners(CCSize size, float scale) {
+    auto layer = CCLayer::create();
+    layer->setContentSize(size);
+    layer->setAnchorPoint({0.5f, 0.5f});
+    layer->setPosition({0, 0});
+
+    for (int i = 0; i < 4; ++i) {
+        auto corner = CCSprite::create("corner.png"_spr);
+        corner->setRotation(90 * i);
+        corner->setScale(scale);
+        corner->setAnchorPoint({0.f, 0.f});
+        corner->setPosition({ (i < 2 ? 0.f : size.width), (i % 3 == 0 ? 0.f : size.height) });
+        layer->addChild(corner);
+    }
+    return layer;
+}
+
+void TagsManager::loadTagsInfo() {
+    m_listener.bind([](web::WebTask::Event* e) {
+        if (auto res = e->getValue(); res && res->ok()) {
+            auto jsonStr = res->string().unwrapOr("{}");
+            TagsManager::sharedState()->tags = matjson::parse(jsonStr).unwrapOr("{}");
+        }
+    });
+
+    auto req = web::WebRequest();
+    m_listener.setFilter(req.get(fmt::format("{}/tags", Mod::get()->getSettingValue<std::string>("serverUrl"))));
 }

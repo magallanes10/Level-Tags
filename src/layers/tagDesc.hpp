@@ -4,6 +4,7 @@
 #include <Geode/ui/LoadingSpinner.hpp>
 
 #include "../tagsManager.hpp"
+#include "uiSquare.hpp"
 
 using namespace geode::prelude;
 

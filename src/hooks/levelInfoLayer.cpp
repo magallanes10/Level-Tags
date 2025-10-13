@@ -5,8 +5,7 @@
 #include "../tagsManager.hpp"
 #include "../layers/tagDesc.hpp"
 #include "../layers/moreTags.hpp"
-#include "../layers/requestTag.hpp"
-// #include "../layers/requestsPopup.hpp"
+#include "../layers/discordPopup.hpp"
 
 using namespace geode::prelude;
 
@@ -16,8 +15,7 @@ class $modify(TagsLevelInfoLayer, LevelInfoLayer) {
         matjson::Value tags;
     };
 
-    //void request(CCObject* sender) {RequestsPopup::create(m_level)->show();}
-    void request(CCObject* sender) {RequestTag::create({std::to_string(m_level->m_levelID.value()), m_level->isPlatformer()})->show();}
+    void request(CCObject* sender) {DiscordPopup::create(true)->show();}
 
     void moreTags(CCObject* sender) {MoreTags::create(m_fields->tags)->show();}
 
@@ -27,8 +25,12 @@ class $modify(TagsLevelInfoLayer, LevelInfoLayer) {
 
         if (!Mod::get()->getSettingValue<bool>("hideRequest")) {
             auto menu = this->getChildByID("left-side-menu");
-            auto request = CCMenuItemSpriteExtra::create(CircleButtonSprite::createWithSprite("icon.png"_spr, 1.2, CircleBaseColor::DarkPurple), this, menu_selector(TagsLevelInfoLayer::request));
-            request->setID("tag-request");
+
+            auto spr = CircleButtonSprite::createWithSprite("discord.png"_spr, 1.15f, CircleBaseColor::DarkPurple);
+            static_cast<CCSprite*>(spr->getChildren()->firstObject())->setPosition({25.f, 26.f});
+
+            auto request = CCMenuItemSpriteExtra::create(spr, this, menu_selector(TagsLevelInfoLayer::request));
+            request->setID("tags-discord");
             menu->addChild(request);
             menu->updateLayout();
         }
@@ -47,6 +49,7 @@ class $modify(TagsLevelInfoLayer, LevelInfoLayer) {
 
         if (TagsManager::sharedState()->cachedTags[std::to_string(m_level->m_levelID)].size() != 0) {
             m_fields->tags = TagsManager::sortTags(TagsManager::sharedState()->cachedTags[std::to_string(m_level->m_levelID)]);
+            if (m_fields->tags.size() == 0) return;
             updateTags();
             return;
         }
@@ -56,14 +59,15 @@ class $modify(TagsLevelInfoLayer, LevelInfoLayer) {
                 auto jsonStr = res->string().unwrapOr("{}");
                 auto json = matjson::parse(jsonStr).unwrapOr("{}");
 
-                m_fields->tags = TagsManager::sortTags(json);
-                TagsManager::sharedState()->cachedTags[std::to_string(m_level->m_levelID)] = json;
+                m_fields->tags = TagsManager::sortTags(json[std::to_string(m_level->m_levelID)]);
+                TagsManager::sharedState()->cachedTags[std::to_string(m_level->m_levelID)] = json[std::to_string(m_level->m_levelID)];
+                if (m_fields->tags.size() == 0) return;
                 updateTags();
             }
         });
 
         auto req = web::WebRequest();
-        m_fields->m_listener.setFilter(req.get(fmt::format("https://raw.githubusercontent.com/KampWskiR/test3/main/tags/{}.json", m_level->m_levelID.value())));
+        m_fields->m_listener.setFilter(req.get(fmt::format("{}/get?id={}", Mod::get()->getSettingValue<std::string>("serverUrl"), m_level->m_levelID.value())));
     };
 
     void updateTags() {
