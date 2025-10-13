@@ -1,5 +1,4 @@
 #include "uiSquare.hpp"
-#include <winbase.h>
 
 bool UIsquare::init(bool primary, CCSize size) {
 	if (!CCLayer::init()) return false;
