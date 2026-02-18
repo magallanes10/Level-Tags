@@ -1,10 +1,10 @@
 {
-	"geode": "4.9.0",
+	"geode": "5.0.0-beta.3",
 	"gd": {
-		"win": "2.2074",
-		"mac": "2.2074",
-		"android": "2.2074",
-		"ios": "2.2074"
+		"win": "2.2081",
+		"mac": "2.208",
+		"android": "2.208",
+		"ios": "2.208"
 	},
 	"version": "v0.3.3-alpha",
 	"id": "rgdps.level_tags",
