@@ -7,8 +7,8 @@
 		"ios": "2.2074"
 	},
 	"version": "v0.3.3-alpha",
-	"id": "kampwski.level_tags",
-	"name": "Level Tags",
+	"id": "rgdps.level_tags",
+	"name": "Level Tags RGDPS",
 	"developer": "KampWski",
 	"description": "A mod that adds tags to levels.",
 	"dependencies": {
@@ -97,7 +97,7 @@
 		"serverUrl": {
 			"name": "Server Url",
 			"type": "string",
-			"default": "https://leveltags.up.railway.app",
+			"default": "https://hutchingd-leveltagsserverrgdps.hf.space",
 			"filter": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:/.?&=0123456789",
 			"description": "The URL of the server that stores the tags."
 		}
