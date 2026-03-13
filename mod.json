@@ -1,10 +1,11 @@
 {
-	"geode": "4.9.0",
+	"geode": "5.3.0",
+	"version": "1.9.1",
 	"gd": {
-		"win": "2.2074",
-		"mac": "2.2074",
-		"android": "2.2074",
-		"ios": "2.2074"
+		"win": "2.2081",
+		"android": "2.2081",
+		"mac": "2.2081",
+		"ios": "2.2081"
 	},
 	"version": "v0.3.3-alpha",
 	"id": "kampwski.level_tags",
@@ -13,11 +14,11 @@
 	"description": "A mod that adds tags to levels.",
 	"dependencies": {
 		"geode.node-ids": {
-			"version": ">=v1.17.0",
+			"version": ">=v1.20.1",
 			"importance": "required"
 		},
 		"alphalaneous.happy_textures": {
-			"version": ">=v2.0.6",
+			"version": ">=v2.1.2",
 			"importance": "required"
 		}
 	},
