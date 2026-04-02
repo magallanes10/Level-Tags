@@ -7,9 +7,9 @@
 		"ios": "2.2081"
 	},
 	"version": "v0.4.0-alpha",
-	"id": "kampwski.level_tags",
-	"name": "Level Tags",
-	"developer": "KampWski",
+	"id": "kampwski.level_tags.rgdps",
+	"name": "Level Tags RGDPS",
+	"developer": "KampWski and Harold Hutchin",
 	"description": "A mod that adds tags to levels.",
 	"dependencies": {
 		"geode.node-ids": {
@@ -97,7 +97,7 @@
 		"serverUrl": {
 			"name": "Server Url",
 			"type": "string",
-			"default": "https://leveltags.up.railway.app",
+			"default": "https://hutchingd-leveltagsserverrgdps.hf.space",
 			"filter": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:/.?&=0123456789",
 			"description": "The URL of the server that stores the tags."
 		}
