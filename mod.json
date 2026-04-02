@@ -97,7 +97,7 @@
 		"serverUrl": {
 			"name": "Server Url",
 			"type": "string",
-			"default": "https://hutchingd-leveltagsserverrgdps.hf.space",
+			"default": "https://api.leveltagrgdpscc.theworkpc.com",
 			"filter": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:/.?&=0123456789",
 			"description": "The URL of the server that stores the tags."
 		}
