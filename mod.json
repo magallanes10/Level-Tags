@@ -1,5 +1,5 @@
 {
-	"geode": "5.4.1",
+	"geode": "5.5.3",
 	"gd": {
 		"win": "2.2081",
 		"mac": "2.2081",
@@ -7,18 +7,18 @@
 		"ios": "2.2081"
 	},
 	"version": "v0.4.0-alpha",
-	"id": "kampwski.level_tags",
+	"id": "rgdps.level_tags",
 	"name": "Level Tags",
-	"developer": "KampWski",
+	"developer": "RGDPS Team",
 	"description": "A mod that adds tags to levels.",
 	"dependencies": {
 		"geode.node-ids": {
 			"version": ">=v1.17.0",
-			"importance": "required"
+			"required": true
 		},
 		"alphalaneous.happy_textures": {
 			"version": ">=v2.1.6",
-			"importance": "required"
+			"required": true
 		}
 	},
 	"tags": [

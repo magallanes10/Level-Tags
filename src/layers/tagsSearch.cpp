@@ -344,7 +344,7 @@ void TagsSearch::search(CCObject*) {
 
             if (json.isArray()) {
                 for (const auto& id : json) {
-                    int levelID = std::stoi(id.asString().unwrapOr("0"));
+                    int levelID = geode::utils::numFromString<int>(id.asString().unwrapOr("0")).unwrapOr(0);
 
                     bool versionMatch = false;
 
